@@ -9,6 +9,36 @@
 
 <body>
 
+    <!-- HEADER -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">[SVG]</div>
+                ChromaFlow
+            </div>
+
+            <div class="controls">
+                <button onclick="exportCSS()">Export</button>
+                <button onclick="refreshPalette()">Refresh</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="intro">
+            <h2>Modern Palette</h2>
+            <p>Click a box to copy hex</p>
+        </div>
+
+        <div id="paletteGrid"></div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        Press Space to refresh
+    </footer>
+
 </body>
 
 </html>
