@@ -4,42 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ColorzPro App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
 </head>
 
-<body>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-slate-200">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-6  py-3">
+            <div class="flex items-center gap-2 text-xl font-extrabold tracking-tight">
+                <div class="bg-indigo-600 text-white w-9 h-9 flex items-center justify-center rounded-lg">
+                    🎨
+                </div>
+                ColorzPro
 
-    <!-- HEADER -->
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <div class="logo-icon">[SVG]</div>
-                ChromaFlows
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="exportCSS()"
+                    class="px-4 py-2 border-slate-900 rounded-full text-sm hover:bg-slate-100 transition">Export
+                    CSS</button>
+                <button onclick="refresh()"
+                    class="px-5 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-700 transition flex items-center gap-2">
+                    <span id="refreshIcon">↻</span>Refresh
+                </button>
             </div>
 
-            <div class="controls">
-                <button onclick="exportCSS()">Export</button>
-                <button onclick="refreshPalette()">Refresh</button>
-            </div>
+
+
+
         </div>
+
     </header>
 
-    <!-- MAIN -->
-    <main>
-        <div class="intro">
-            <h2>Modern Palette</h2>
-            <p>Click a box to copy hex</p>
-        </div>
-
-        <div id="paletteGrid"></div>
-    </main>
-
-    <!-- FOOTER -->
-    <footer>
-        Press Space to refresh.
-    </footer>
-
 </body>
-
 
 </html>
