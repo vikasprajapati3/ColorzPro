@@ -7,7 +7,17 @@
     <title>ColorzPro App</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        .shade-chip:hover .shade-label {
+            opacity: 1
+        }
 
+        .swatch-box:hover .copy-hint {
+            opacity: 1
+        }
+
+        .copy-hint {
+            transition: opacity 0.15s;
+        }
     </style>
 </head>
 
@@ -32,7 +42,7 @@
             </div>
         </div>
     </header>
-    <main class="max-w-7xl mx-auto px6 py-8">
+    <main class="max-w-7xl mx-auto px-6 py-8">
         <div class="mb-6">
             <h2 class="text-xl font-bold">Palette</h2>
             <p class="text-sm text-slate-500">Click swatch to copy hex · 🔒 to lock · Space to refresh </p>
@@ -45,6 +55,148 @@
         </div>
     </main>
 
+    <script>
+
+        let colors = [], count = 12;
+
+        // Color logic
+        const hslTohex = (h, s, l) => {
+            s /= 100; l /= 100;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => { const k = (n + h / 30) % 12, c = 1 - a * Math.max(-1, Math.min(k - 3, Math.min(9 - k, 1))); return Math.round(255 * c).toString(16).padStart(2, '0'); };
+            return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+        };
+
+        const hexTohsl = hex => {
+            let [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+            const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+            let h = 0, s = 0, l = (max + min) / 2;
+            if (d) {
+                s = d / (l > 0.5 ? 2 - max - min : max + min);
+                h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+                h /= 6;
+
+            }
+            return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+        };
+
+        const randHex = () => hslTohex(Math.random() * 360, 45 + Math.random() * 40, 38 + Math.random() * 28);
+
+        const isLight = hex => {
+            const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+        };
+        const shades = hex => {
+            const [h, s] = hexTohsl(hex);
+            return [95, 85, 74, 62, 50, 38, 26, 14].map((l, i) => ({ hex: hslTohex(h, Math.min(s + 5, 95), l), label: i === 0 ? '50' : String(i * 100) }));
+        };
+        // ----Operation-----
+        const copy = (hex, el) => {
+            navigator.clipboard.writeText(hex);
+            if (!el) return;
+            el.textContent = 'Copied!';
+            el.style.opacity = '1';
+            setTimeout(() => { el.textContent = 'Copy'; el.style.opacity = ''; }, 1200);
+
+        };
+
+        function init(n = count) {
+            count = n;
+            colors = Array.from({ length: count }, (_, i) => ({ id: i, hex: randHex(), locked: false }));
+            render();
+
+        }
+        function refresh() {
+            colors = colors.map(c => c.locked ? c : { ...c, hex: randHex() });
+            render();
+            const icon = refreshIcon;
+            icon.style.transition = 'transform 0.45s ease';
+            icon.style.transform = 'rotate(360deg)';
+            setTimeout(() => { icon.style.transition = 'none'; icon.style.transform = ''; }, 450);
+        }
+
+        function exportCSS() {
+
+        }
+        // render function
+        function render() {
+            paletteGrid.innerHTML = shadesGrid.innerHTML = '';
+
+            colors.forEach(c => {
+                const light = isLight(c.hex), tc = light ? 'text-black' : 'text-white';
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm hover: shadow-md transition-shadow overflow-hidden flex flex-col';
+
+                card.innerHTML = `
+            <div class="swatch-box h-28 flex items-center justify-center cursor-pointer relative ${tc}" 
+            style="background:${c.hex}" onclick="copy('${c.hex}', this.querySelector('.copy-hint'))"> 
+            <span class="copy-hint opacity-0 font-bold text-xs tracking-widest uppercase">Copy</span>
+            </div>
+            <div class="flex justify-between items-center px-3 py-2 border-t border-slate-100">
+                <span class="font-mono text-xs font-medium text-slate-700 cursor-pointer hover:text-indigo-600 transition" 
+                onclick="copy('${c.hex}',this.closest('.flex').previousElementSibling.querySelector('.copy-hint'))">${c.hex}</span>
+                <button onclick="colors[${c.id}].locked=!colors[${c.id}].locked;
+                render()"
+                class="text-base hover:scale-110 transition-transform">${c.locked ? '🔒' : '🔓'}</button>
+                </div>`;
+                paletteGrid.appendChild(card);
+
+                // color shades 
+                const row = document.createElement('div');
+                row.className = "flex flex-col gap-1";
+                row.innerHTML = `<div class="flex items-center gap-2 mb-1"> 
+                <div class="w-4 h-4 rounded" style="background:${c.hex}"></div>
+                <span class="font-mono text-xs text-slate-500">${c.hex}</span></div>`;
+
+                const strips = document.createElement('div');
+                strips.className = 'flex rounded-xl overflow-hidden border border-slate-200';
+
+                const labels = document.createElement('div');
+                labels.className = 'flex mt-0.5';
+
+                shades(c.hex).forEach(s => {
+                    const l = isLight(s.hex);
+                    const chip = document.createElement('div');
+                    chip.className = 'shade-chip flex-1 flex flex-col items-center cursor-pointer group relative';
+                    chip.title = `copy ${s.hex}`;
+                    chip.onclick = () => copy(s.hex);
+                    chip.innerHTML = `
+                <div class="w-full h-12 group-hover:h-14 transition-all"
+                style="background:${s.hex}"></div>
+                <div class="shade-label opacity-0 group-hover:opacity-100 absolute bottom-0 font-mono text-[9px] pb-0.5 transition-opacity ${l ? 'text-slate-700' : 'text-white'}"
+                style="text-shadow:0 1px 2px rgba(0,0,0,0.2)">${s.hex.slice(1)}</div>`;
+                    strips.appendChild(chip);
+
+                    const lbl = document.createElement('div');
+                    lbl.className = 'flex-1 text-center font-mono text-[9px] text-slate-400 pt-0.5';
+                    lbl.textContent = s.label;
+                    labels.appendChild(lbl);
+
+                });
+
+                row.append(strips, labels);
+                shadesGrid.appendChild(row);
+
+
+            });
+
+
+
+
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                refresh();
+            }
+        });
+
+        init(6);
+
+    </script>
 </body>
+
 
 </html>
