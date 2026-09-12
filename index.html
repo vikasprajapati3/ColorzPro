@@ -125,8 +125,27 @@
         }
 
         function exportCSS() {
+            const css = `:root {
+${colors
+                    .map((color, index) => `  --color-${index + 1}: ${color.hex};`)
+                    .join('\n')}
+}
+`;
 
+            const blob = new Blob([css], { type: 'text/css' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'colorzpro-palette.css';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
         }
+
         // render function
         function render() {
             paletteGrid.innerHTML = shadesGrid.innerHTML = '';
