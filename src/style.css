@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+.shade-chip:hover .shade-label {
+    opacity: 1
+}
+
+.swatch-box:hover .copy-hint {
+    opacity: 1
+}
+
+.copy-hint {
+    transition: opacity 0.15s;
+}
