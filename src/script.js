@@ -42,6 +42,10 @@ const shades = hex => {
         label: String((i + 1) * 100)
     }));
 };
+
+window.render = render;
+window.colors = colors;
+
 // ----Operation-----
 const copy = (hex, el) => {
     navigator.clipboard.writeText(hex);
@@ -107,8 +111,7 @@ function render() {
             <div class="flex justify-between items-center px-3 py-2 border-t border-slate-100">
                 <span class="font-mono text-xs font-medium text-slate-700 cursor-pointer hover:text-indigo-600 transition" 
                 onclick="copy('${c.hex}',this.closest('.flex').previousElementSibling.querySelector('.copy-hint'))">${c.hex}</span>
-                <button onclick="colors[${c.id}].locked=!colors[${c.id}].locked;
-                render()"
+                <button onclick="toggleLock(${c.id})"
                 class="text-base hover:scale-110 transition-transform">${c.locked ? '🔒' : '🔓'}</button>
                 </div>`;
         paletteGrid.appendChild(card);
@@ -152,9 +155,6 @@ function render() {
 
     });
 
-
-
-
 }
 
 document.addEventListener('keydown', e => {
@@ -166,3 +166,10 @@ document.addEventListener('keydown', e => {
 
 init();
 
+window.exportCSS = exportCSS;
+window.refresh = refresh;
+window.copy = copy;
+window.toggleLock = (id) => {
+    colors[id].locked = !colors[id].locked;
+    render();
+};
